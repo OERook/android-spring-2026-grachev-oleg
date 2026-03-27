@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Homework_6</string>
+    <string name="data_loaded_from_cache">⚡ Данные загружены из локального кэша</string>
+    <string name="data_loaded_from_server">🌐 Данные загружены с сервера</string>
+    <string name="enter_character_name">Введите имя персонажа (напр. Rick)</string>
+    <string name="search_button">Найти</string>
+    <string name="start_searching">Начните поиск персонажей</string>
+    <string name="nothing_found">Ничего не найдено 😔</string>
+    <string name="details_title">Информация</string>
+    <string name="back_button_desc">Назад</string>
+    <string name="status_label">Статус: %1$s</string>
+    <string name="species_label">Вид: %1$s</string>
+    <string name="gender_label">Пол: %1$s</string>
+    <string name="origin_label">Происхождение: %1$s</string>
+    <string name="location_label">Текущая локация: %1$s</string>
+    <string name="details_loaded_from_cache">⚡ Детали загружены из кэша</string>
+    <string name="details_loaded_from_server">🌐 Детали загружены с сервера</string>
+</resources>
