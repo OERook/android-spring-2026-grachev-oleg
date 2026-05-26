@@ -1,5 +1,6 @@
 package ru.itis.android.homework_6.domain.model
 
+import kotlinx.collections.immutable.toImmutableList
 import ru.itis.android.homework_6.data.model.CharacterDto
 import ru.itis.android.homework_6.data.model.EpisodeDto
 import ru.itis.android.homework_6.data.model.LocationDto
@@ -15,7 +16,7 @@ fun CharacterDto.toDomain(): Character {
         originName = origin.name,
         locationName = location.name,
         imageUrl = image,
-        episodeUrls = episode
+        episodeUrls = episode.toImmutableList()
     )
 }
 

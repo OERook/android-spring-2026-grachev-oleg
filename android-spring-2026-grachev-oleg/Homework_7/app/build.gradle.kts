@@ -71,6 +71,8 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:$coilVersion")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
+
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
@@ -90,6 +92,9 @@ dependencies {
     implementation(libs.datastore.preferences)
 
     testImplementation(libs.junit)
+    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
