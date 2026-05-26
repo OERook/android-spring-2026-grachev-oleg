@@ -1,5 +1,9 @@
 package ru.itis.android.homework_6.domain.model
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+
+@Immutable
 data class Character(
     val id: Int,
     val name: String,
@@ -10,7 +14,7 @@ data class Character(
     val originName: String,
     val locationName: String,
     val imageUrl: String,
-    val episodeUrls: List<String>
+    val episodeUrls: ImmutableList<String>
 )
 
 sealed interface Result<out T> {
