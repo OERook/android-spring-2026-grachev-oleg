@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Homework_7</string>
+    <string name="data_loaded_from_cache">⚡ Данные загружены из локального кэша</string>
+    <string name="data_loaded_from_server">🌐 Данные загружены с сервера</string>
+    <string name="enter_character_name">Введите имя персонажа (напр. Rick)</string>
+    <string name="search_button">Найти</string>
+    <string name="start_searching">Начните поиск персонажей</string>
+    <string name="nothing_found">Ничего не найдено 😔</string>
+    <string name="details_title">Информация</string>
+    <string name="back_button_desc">Назад</string>
+    <string name="status_label">Статус: %1$s</string>
+    <string name="species_label">Вид: %1$s</string>
+    <string name="gender_label">Пол: %1$s</string>
+    <string name="origin_label">Происхождение: %1$s</string>
+    <string name="location_label">Текущая локация: %1$s</string>
+    <string name="details_loaded_from_cache">⚡ Детали загружены из кэша</string>
+    <string name="details_loaded_from_server">🌐 Детали загружены с сервера</string>
+
+    <string name="onboarding_title">Добро пожаловать!</string>
+    <string name="onboarding_body">Это приложение для поиска персонажей Rick &amp; Morty.\n\nЭкраны:\n• Поиск — найдите персонажа по имени\n• Детали — подробная информация о персонаже\n\nДанные кэшируются локально (Room), сетевые запросы — через Retrofit. DI реализован через Hilt, ошибки отправляются в Crashlytics, поддерживаются push-уведомления.</string>
+    <string name="onboarding_close">Понятно, продолжить</string>
+
+    <string name="default_notification_channel_id" translatable="false">default_channel</string>
+    <string name="default_notification_channel_name">Уведомления</string>
+</resources>
