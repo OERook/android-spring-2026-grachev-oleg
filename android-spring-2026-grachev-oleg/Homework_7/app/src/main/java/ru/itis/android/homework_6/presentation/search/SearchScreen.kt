@@ -36,18 +36,21 @@ fun SearchScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
 
-    LaunchedEffect(uiState) {
-        if (uiState is SearchUiState.Success) {
-            val successState = uiState as SearchUiState.Success
-            if (successState.characters.isNotEmpty() && !successState.isMessageConsumed) {
-                val message = if (successState.isFromCache) {
-                    context.getString(R.string.data_loaded_from_cache)
-                } else {
-                    context.getString(R.string.data_loaded_from_server)
-                }
-                snackbarHostState.showSnackbar(message)
-                viewModel.consumeMessage()
+    val successState = uiState as? SearchUiState.Success
+    val shouldShowSnackbar = successState != null &&
+        successState.characters.isNotEmpty() &&
+        !successState.isMessageConsumed
+    val isFromCache = successState?.isFromCache == true
+
+    LaunchedEffect(shouldShowSnackbar, isFromCache) {
+        if (shouldShowSnackbar) {
+            val message = if (isFromCache) {
+                context.getString(R.string.data_loaded_from_cache)
+            } else {
+                context.getString(R.string.data_loaded_from_server)
             }
+            snackbarHostState.showSnackbar(message)
+            viewModel.consumeMessage()
         }
     }
 
@@ -60,103 +63,147 @@ fun SearchScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "User: ${viewModel.currentUserId.take(8)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            UserIdLabel(userIdShort = viewModel.currentUserId.take(8))
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = query,
-                onValueChange = viewModel::updateQuery,
-                label = { Text(stringResource(R.string.enter_character_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        keyboardController?.hide()
-                        viewModel.performSearch()
-                    }
-                )
+
+            SearchInput(
+                query = query,
+                onQueryChange = viewModel::updateQuery,
+                onSearch = {
+                    keyboardController?.hide()
+                    viewModel.performSearch()
+                }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            SearchButton(
                 onClick = {
                     keyboardController?.hide()
                     viewModel.performSearch()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.search_button))
-            }
+                }
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedButton(
-                onClick = {
-                    // Log a custom Crashlytics message + custom key, then crash
-                    com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance().apply {
-                        log("User pressed Test crash button")
-                        setCustomKey("last_query", query)
-                    }
-                    throw RuntimeException("Test crash from Homework_7 — user=${viewModel.currentUserId.take(8)}")
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Test crash (Crashlytics)")
-            }
+            CrashButton(query = query, userIdShort = viewModel.currentUserId.take(8))
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            when (val state = uiState) {
-                is SearchUiState.Idle -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.start_searching), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                is SearchUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is SearchUiState.Error -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
-                    }
-                }
-                is SearchUiState.Success -> {
-                    if (state.characters.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.nothing_found))
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(state.characters, key = { it.id }) { character ->
-                                CharacterItem(
-                                    character = character,
-                                    onClick = { onCharacterClick(character.id) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            SearchContent(state = uiState, onCharacterClick = onCharacterClick)
         }
     }
 }
 
 @Composable
-fun CharacterItem(character: Character, onClick: () -> Unit) {
+private fun UserIdLabel(userIdShort: String) {
+    Text(
+        text = "User: $userIdShort",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
+private fun SearchInput(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: () -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        label = { Text(stringResource(R.string.enter_character_name)) },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = { onSearch() })
+    )
+}
+
+@Composable
+private fun SearchButton(onClick: () -> Unit) {
+    Button(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.search_button))
+    }
+}
+
+@Composable
+private fun CrashButton(query: String, userIdShort: String) {
+    OutlinedButton(
+        onClick = {
+            com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance().apply {
+                log("User pressed Test crash button")
+                setCustomKey("last_query", query)
+            }
+            throw RuntimeException("Test crash from Homework_7 — user=$userIdShort")
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Test crash (Crashlytics)")
+    }
+}
+
+@Composable
+private fun SearchContent(
+    state: SearchUiState,
+    onCharacterClick: (Int) -> Unit
+) {
+    when (state) {
+        is SearchUiState.Idle -> CenteredMessage(
+            text = stringResource(R.string.start_searching),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        is SearchUiState.Loading -> Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) { CircularProgressIndicator() }
+        is SearchUiState.Error -> CenteredMessage(
+            text = state.message,
+            color = MaterialTheme.colorScheme.error
+        )
+        is SearchUiState.Success -> CharacterList(
+            characters = state.characters,
+            onCharacterClick = onCharacterClick
+        )
+    }
+}
+
+@Composable
+private fun CenteredMessage(text: String, color: androidx.compose.ui.graphics.Color) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = text, color = color)
+    }
+}
+
+@Composable
+private fun CharacterList(
+    characters: List<Character>,
+    onCharacterClick: (Int) -> Unit
+) {
+    if (characters.isEmpty()) {
+        CenteredMessage(
+            text = stringResource(R.string.nothing_found),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        return
+    }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(characters, key = { it.id }) { character ->
+            CharacterItem(character = character, onClick = onCharacterClick)
+        }
+    }
+}
+
+@Composable
+fun CharacterItem(character: Character, onClick: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick(character.id) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
